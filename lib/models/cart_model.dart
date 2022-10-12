@@ -6,6 +6,7 @@ class CartData{
   String? p_details;
   String? p_category;
   int? p_quantity;
+  String? p_img;
 
   CartData({
     required this.p_id,
@@ -14,7 +15,8 @@ class CartData{
     required this.p_availability,
     required this.p_details,
     required this.p_category,
-    required this.p_quantity
+    required this.p_quantity,
+    required this.p_img
   });
 
   CartData.fromJson(Map<String, dynamic> json){
@@ -25,5 +27,6 @@ class CartData{
     p_details = json['p_details'] ?? '';
     p_category = json['p_category'];
     p_quantity = json['p_quantity'];
+    p_img = json['p_img'];
   }
 }

@@ -18,7 +18,6 @@ class _CartViewState extends State<CartView> {
   dynamic totalPrice = 0;
   List<String> selectedCategory = [];
   List selectCount = [];
-  List<bool> check = [];
 
   @override
   void initState() {
@@ -48,39 +47,59 @@ class _CartViewState extends State<CartView> {
         return AlertDialog(
           title: const Text("Confirmation"),
           content: SizedBox(
-            height: 300,
+            height: 210,
             width: 300,
-            child: ListView.builder(
-              itemCount: cartList.length,
-              itemBuilder: ((context, index) {
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 4),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(cartList[index].p_name.toString(),
-                        style: const TextStyle(
-                          color: Color.fromARGB(255, 151, 47, 203),
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500
-                        ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: const [
+                    Text('Quantity',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500
                       ),
-                      Text(cartList[index].p_quantity.toString(),
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600
+                    )
+                  ],
+                ),
+                const SizedBox(height: 2),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: cartList.length,
+                    itemBuilder: ((context, index) {
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 4),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(cartList[index].p_name.toString(),
+                              style: const TextStyle(
+                                color: Color.fromARGB(255, 151, 47, 203),
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500
+                              ),
+                            ),
+                            Text(cartList[index].p_quantity.toString(),
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
+                      );
+                    })
                   ),
-                );
-              })
+                ),
+              ],
             )
           ),
           actions: [
             ElevatedButton(
-              onPressed: (){},
+              onPressed: (){
+                Navigator.pop(context);
+              },
               style: ElevatedButton.styleFrom(
                 primary: const Color(0xff6750a4),
               ),
@@ -96,62 +115,64 @@ class _CartViewState extends State<CartView> {
     );
   }
 
-  showAlertDialog(BuildContext context) {
+  Future<void> showInformationDialog(BuildContext context) async {
     List<String> allCategory = [];
     for(var i in cartList){
       allCategory.add(i.p_category.toString());
     }
     allCategory = allCategory.toSet().toList();
     allCategory.remove('null');
-    for(int i=0;i<allCategory.length;i++){
-      check.add(false);
-    }
-    
-    showDialog(
+
+    return await showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Select Category"),
-          content: SizedBox(
-            height: 300,
-            width: 300,
-            child: ListView.builder(
-              itemCount: allCategory.length,
-              itemBuilder: ((context, index) {
-                return ListTile(
-                  leading: Checkbox(
-                    value: check[index],
-                    onChanged: (value) {
-                      setState(() {
-                        check[index] = value!;
-                        selectedCategory.add(allCategory[index].toString());
-                      });
-                    },
-                  ),
-                  title: Text(allCategory[index].toString()),
-                );
-              })
+      builder: (context) {
+        List<bool> check = [];
+        for(int i=0;i<allCategory.length;i++){
+          check.add(false);
+        }
+        return StatefulBuilder(builder: (context, setState) {
+          return AlertDialog(
+            title: const Text("Select Category"),
+            content: SizedBox(
+              height: 300,
+              width: 300,
+              child: ListView.builder(
+                itemCount: allCategory.length,
+                itemBuilder: ((context, index) {
+                  return ListTile(
+                    leading: Checkbox(
+                      value: check[index],
+                      onChanged: (value) {
+                        setState(() {
+                          check[index] = value!;
+                          selectedCategory.add(allCategory[index].toString());
+                        });
+                      },
+                    ),
+                    title: Text(allCategory[index].toString()),
+                  );
+                })
+              ),
             ),
-          ),
-          actions: [
-            ElevatedButton(
-              onPressed: (){
-                setState(() {
+            actions: [
+              ElevatedButton(
+                onPressed: (){
                   for(var cat in selectedCategory){
                     for(int i=0;i<cartList.length;i++){
-                      if(cartList[i].p_category == cat){
+                      if(cartList[i].p_category != cat){
                         setState(() {
                           cartList.remove(cartList[i]);
                         });
                       }
                     }
                   }
-                });
-              },
-              child: const Text('apply')
-            )
-          ],
-        );
+                  Navigator.pop(context);
+                },
+                child: const Text('apply')
+              )
+            ],
+          );
+        });
       }
     );
   }
@@ -257,7 +278,7 @@ class _CartViewState extends State<CartView> {
                   style: ElevatedButton.styleFrom(
                     primary: Colors.white,
                   ),
-                  onPressed: () => showAlertDialog(context),
+                  onPressed: () => showInformationDialog(context),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: const [
@@ -390,7 +411,7 @@ class _CartViewState extends State<CartView> {
                             Expanded(
                               flex: 3,
                               child: Image.network(
-                                'https://d2d22nphq0yz8t.cloudfront.net/88e6cc4b-eaa1-4053-af65-563d88ba8b26/https://media.croma.com/image/upload/v1662424212/Croma%20Assets/Communication/Mobiles/Images/234252_czgdvc.png/mxw_640,f_auto',
+                                cartList[index].p_img.toString(),
                                 fit: BoxFit.cover,
                               ),
                             ),
